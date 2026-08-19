@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DM CERAMIC INTERIOR V3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f5f7;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif}
+header{background:#111;color:#fff;padding:18px 20px;position:sticky;top:0;z-index:5}header b{font-size:20px}
+.wrap{max-width:1200px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 2px 10px #0001}h2{margin:0 0 14px;font-size:20px}h3{margin:6px 0 12px}.muted{color:#777;font-size:13px}
+label{display:block;font-weight:700;margin:10px 0 6px}input,select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;font-size:16px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.items{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.item{border:1px solid #ddd;border-radius:12px;padding:14px;cursor:pointer}.item.active{border:2px solid #111;background:#fafafa}.item b{display:block;margin-bottom:5px}
+.qty{display:flex;align-items:center;gap:8px}.qty button{width:38px;height:38px;border:0;border-radius:9px;font-size:20px}.qty input{max-width:120px;text-align:center}
+.option{display:grid;grid-template-columns:minmax(0,1fr) 110px 125px;align-items:center;border-bottom:1px solid #eee;padding:11px 0;gap:8px}.optqty{display:flex;align-items:center;justify-content:flex-end;gap:5px}.optqty input{width:68px!important;padding:7px!important;text-align:center}.option:last-child{border-bottom:0}.option input{width:20px;height:20px}
+.price{text-align:right;font-weight:700;white-space:nowrap}.small{font-size:12px;color:#777}.btn{width:100%;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:800;background:#111;color:#fff;margin-top:8px}.btn.light{background:#eee;color:#222}
+.sticky{position:sticky;top:82px}.hidden{display:none}.sum{display:flex;justify-content:space-between;padding:7px 0}.total{font-size:28px;font-weight:900;margin:10px 0}
+.notice{background:#f7f7f7;padding:10px;border-radius:10px;font-size:13px}.maprow{display:grid;grid-template-columns:1fr 130px;gap:8px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.sticky{position:static}.items{grid-template-columns:1fr 1fr}}@media(max-width:500px){.items,.row,.maprow{grid-template-columns:1fr}.option{grid-template-columns:1fr 95px 125px}.optqty input{width:65px!important}}
+@media print{header,.wrap,#contractModal button{display:none!important}#contractModal{position:static!important;background:#fff!important;padding:0!important}#contractModal>div{box-shadow:none!important;max-width:none!important}}
+
+.payment-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.payment-grid input{width:100%}.default-term{margin-top:12px;padding:12px;background:#f7f7f7;border-radius:10px;line-height:1.65}textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;font:inherit;resize:vertical;min-height:120px}@media(max-width:700px){.payment-grid{grid-template-columns:1fr 1fr}}@media(max-width:450px){.payment-grid{grid-template-columns:1fr}}
+</style>
+<style id="v6-style">.v6-business{margin:18px 0;padding:16px;border:1px solid #ddd;border-radius:12px;background:#fff}@media(max-width:600px){.v6-business{font-size:14px}}@media print{@page{size:A4;margin:10mm}html,body{height:auto!important;overflow:visible!important}body *{overflow:visible!important;max-height:none!important}}</style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#222"></head>
+<body>
+<header><b>DM CERAMIC INTERIOR</b><span style="float:right;font-size:13px">V4 견적·계약</span></header>
+<div class="wrap"><div class="grid"><main>
+<section class="card"><h2>① 고객정보</h2>
+<div class="row"><div><label>고객명</label><input id="name" placeholder="홍길동"></div><div><label>연락처</label><input id="phone" placeholder="010-0000-0000"></div></div>
+<label>공사주소</label><div class="maprow"><input id="address" placeholder="도로명/지번 주소"><button class="btn light" onclick="naver()">네이버 지도</button></div>
+<label>상세주소</label><input id="detailAddress" placeholder="동·층·호 등">
+</section>
+
+<section class="card"><h2>② 공사범위</h2><p class="muted">전체 인테리어는 기본 수량/옵션이 자동 입력됩니다. 도배·마루는 32평, 욕실은 1·2·3으로 개별 선택할 수 있습니다.</p><div class="items" id="works"></div></section>
+<section id="details" class="card hidden"><h2>③ 세부공사</h2><div id="detailBody"></div></section>
+
+<section class="card"><h2>④ 계약조건</h2>
+<div class="payment-grid">
+<div><label>계약금 20%</label><input id="contractDate" type="date"></div>
+<div><label>1차 중도금 30%</label><input id="mid1Date" type="date"></div>
+<div><label>2차 중도금 30%</label><input id="mid2Date" type="date"></div>
+<div><label>잔금 20%</label><input id="balanceDate" type="date"></div>
+</div>
+<label>공사 예정일</label><input id="date" type="date">
+<p class="notice">잔금은 <b>공사 완료일로부터 3일 이내</b> 지급합니다.</p>
+</section>
+<section class="card"><h2>⑤ 특약사항</h2>
+<textarea id="specialTerms" rows="6" placeholder="추가 특약사항을 입력하세요."></textarea>
+<div class="default-term"><b>기본 특약</b><br>시공 완료 후 사후관리는 <b>1년</b>으로 합니다. 단, 사용자 과실, 소모품, 정상적인 사용에 따른 마모·변색 및 천재지변 등은 사후관리 대상에서 제외할 수 있습니다.</div>
+</section>
+
+<section class="card"><h2>⑥ 리뷰 이벤트</h2><div class="option" style="grid-template-columns:1fr 100px 50px"><span><input id="review" type="checkbox" onchange="render()"> 리뷰 작성 이벤트</span><span class="price">-100,000원</span><span></span></div></section>
+<section class="card"><h2>⑦ 계약</h2><button class="btn" onclick="contract()">계약서 작성 / 전자서명</button></section>
+</main>
+
+<aside class="sticky"><section class="card"><h2>현재 견적</h2><div id="summary"><span class="muted">공정 선택</span></div><hr>
+<div class="sum"><span>공사 소계</span><b id="subtotal">0원</b></div><div class="sum" id="mgmtRow" style="display:none"><span>현장관리비 7%</span><b id="mgmt">0원</b></div>
+<div class="sum"><span>할인</span><b id="discountText">0원</b></div><label>추가 할인</label><input id="discount" type="number" value="0" oninput="render()">
+<div class="sum"><span>부가세</span><b id="vatAmount">0원</b></div><div class="total" id="grand">0원</div>
+<button class="btn light" onclick="window.print()">견적서 인쇄 / PDF</button></section></aside>
+</div></div>
+
+<div id="modal" class="hidden" style="position:fixed;inset:0;background:#0008;z-index:20;padding:15px;overflow:auto">
+<div style="background:#fff;max-width:850px;margin:auto;border-radius:16px;padding:22px"><h2>인테리어 공사계약서</h2><div id="ct"></div>
+<label>고객 서명</label><canvas id="sign" width="700" height="180" style="width:100%;border:1px solid #ccc;border-radius:10px;touch-action:none"></canvas>
+<button class="btn light" onclick="clearSign()">서명 지우기</button><button class="btn" onclick="window.print()">계약서 인쇄 / PDF 저장</button><button class="btn light" onclick="modal.classList.add('hidden')">닫기</button>
+</div></div>
+
+<script>
+const D={
+"샷시":{unit:"평",base:0,opts:[["단창",20000,"평",false],["이중창",35000,"평",false]]},
+"주방":{unit:"m",base:1000000,opts:[["한화 PET",0,"m",false],["깜포르테 사각볼",200000,"식",false],["슈티에 고급수전",200000,"식",false],["인덕션",300000,"식",false],["후드",200000,"식",false],["키큰장",400000,"식",false],["아일랜드 식탁",1000000,"식",false]]},
+"목공":{unit:"",base:0,opts:[["슬림문선",200000,"개",false],["문짝",200000,"개",true],["우물천정",500000,"개",false],["몰딩 천정",500000,"식",false],["걸레받이",500000,"식",false],["아치",1000000,"개",true],["가벽",300000,"식",false],["간접조명박스",300000,"식",false]]},
+"전기":{unit:"",base:0,opts:[["기본 콘센트·스위치",1000000,"식",true],["기본조명",500000,"식",true]]},
+"도배":{unit:"평",base:0,opts:[["합지",80000,"평",false],["실크",120000,"평",false],["디아망",140000,"평",false]]},
+"마루":{unit:"평",base:140000,opts:[["기본 마루",0,"평",false],["기존 바닥 철거",30000,"평",false]]},
+"욕실1":{unit:"칸",base:3000000,opts:[["벽체 철거",250000,"면",false],["바닥 철거 + 방수",500000,"회",false],["유리 파티션",150000,"칸",false],["포세린타일",1000000,"칸",false],["졸리컷",200000,"칸",false],["줄눈 - 벽체",800000,"칸",false],["줄눈 - 바닥",300000,"칸",false],["수전 - 대림",300000,"칸",false],["수전 - 아메리칸스탠다드",500000,"칸",false],["슬라이드장",100000,"칸",false],["조적 젠다이",300000,"칸",false]]},
+"욕실2":{unit:"칸",base:3000000,opts:[["벽체 철거",250000,"면",false],["바닥 철거 + 방수",500000,"회",false],["유리 파티션",150000,"칸",false],["포세린타일",1000000,"칸",false],["졸리컷",200000,"칸",false],["줄눈 - 벽체",800000,"칸",false],["줄눈 - 바닥",300000,"칸",false],["수전 - 대림",300000,"칸",false],["수전 - 아메리칸스탠다드",500000,"칸",false],["슬라이드장",100000,"칸",false],["조적 젠다이",300000,"칸",false]]},
+"욕실3":{unit:"칸",base:3000000,opts:[["벽체 철거",250000,"면",false],["바닥 철거 + 방수",500000,"회",false],["유리 파티션",150000,"칸",false],["포세린타일",1000000,"칸",false],["졸리컷",200000,"칸",false],["줄눈 - 벽체",800000,"칸",false],["줄눈 - 바닥",300000,"칸",false],["수전 - 대림",300000,"칸",false],["수전 - 아메리칸스탠다드",500000,"칸",false],["슬라이드장",100000,"칸",false],["조적 젠다이",300000,"칸",false]]},
+"타일":{unit:"",base:0,opts:[["현관",300000,"식",true],["발코니",300000,"식",true],["주방 300×600",300000,"식",true],["주방 600×600",500000,"식",false]]},
+"페인트":{unit:"식",base:500000,opts:[["기본 페인트",0,"식",false],["친환경 페인트",100000,"식",false],["추가 벽면",100000,"식",false]]},
+"필름":{unit:"식",base:0,opts:[["문짝 필름",120000,"개",false],["문틀 필름",100000,"개",false],["샷시 필름",150000,"개",false],["붙박이장 필름",200000,"개",false],["주방 필름",200000,"식",false],["기타 필름",100000,"개",false]]},
+"기타":{unit:"",base:0,opts:[["보양 - E/V 18인승 이내",200000,"식",true],["보양 - 세대",5000,"장",false],["입주민 동의",200000,"30세대",true],["짐처리",50000,"개",false]]}
+};
+let S={},full=false;
+const won=n=>Math.round(n).toLocaleString("ko-KR")+"원";
+const workNames=["전체 인테리어","샷시","주방","목공","전기","도배","마루","욕실1","욕실2","욕실3","타일","페인트","필름","기타"];
+function init(){let w=document.getElementById("works");workNames.forEach(k=>{let e=document.createElement("div");e.className="item";e.innerHTML=`<b>${k}</b><span class="muted">${k==="전체 인테리어"?"기본 구성 자동 적용":"선택하여 세부 입력"}</span>`;e.onclick=()=>toggle(k,e);w.appendChild(e)})}
+function blank(k){
+ let qty=1;
+ if(k==="주방") qty=5;
+ if(k==="샷시") qty=400;
+ if(k==="도배"||k==="마루") qty=32;
+ return {qty,opts:[],qtys:{}};
+}
+function applyFull(){
+ S={};
+ Object.keys(D).forEach(k=>S[k]=blank(k));
+ // 전체 기본 옵션: 전기, 타일, 기타 + 욕실 1·2·3
+ S["전기"].opts=[0,1]; S["타일"].opts=[0,1,2]; S["기타"].opts=[0,2];
+ full=true;
+}
+function toggle(k,e){
+ document.querySelectorAll("#works .item").forEach(x=>x.classList.remove("active"));
+ if(k==="전체 인테리어"){full=!full;if(full)applyFull();else S={}}
+ else {full=false;S={};S[k]=blank(k)}
+ if(full)document.querySelector("#works .item").classList.add("active");else e.classList.add("active");
+ details();render();
+}
+function details(){
+ let body=document.getElementById("detailBody"),keys=Object.keys(S);document.getElementById("details").classList.toggle("hidden",!keys.length);body.innerHTML="";
+ keys.forEach(k=>{
+  let d=D[k],s=S[k],c=document.createElement("div");c.className="card";
+  let q=k.startsWith("욕실")?"욕실 1칸":k==="주방"?"주방 길이(m)":k==="샷시"?"샷시 면적(평)":k==="도배"||k==="마루"?"공사면적(평)":k==="목공"?"각 옵션별 수량을 직접 입력":"수량";
+  c.innerHTML=`<h3>${k}</h3><p class="muted">${q}</p>`;
+  if(["주방","샷시","도배","마루"].includes(k)) c.innerHTML+=`<div class="qty"><button onclick="qchange('${k}',-1)">−</button><input type="number" step="${k==='주방'||k==='샷시'?0.1:1}" min="0" value="${s.qty}" onchange="S['${k}'].qty=+this.value;details();render()"><button onclick="qchange('${k}',1)">+</button></div>`;
+  let op=document.createElement("div");
+  d.opts.forEach((o,i)=>{
+   let checked=s.opts.includes(i), qty=s.qtys[i]??(o[3]?1:1);
+   let el=document.createElement("div");el.className="option";
+   let qtyControl=`<div class="optqty"><span class="small">수량</span><input type="number" min="0" step="1" value="${qty}" onchange="S['${k}'].qtys[${i}]=+this.value;S['${k}'].opts.includes(${i})||S['${k}'].opts.push(${i});render()"></div>`;
+   el.innerHTML=`<span><input type="checkbox" ${checked?"checked":""} onchange="opt('${k}',${i},this.checked)"> ${o[0]} <span class="small">(${o[2]})</span></span><span class="price">${o[1]?won(o[1]):"기본"}</span><span>${qtyControl}</span>`;
+   op.appendChild(el)
+  });
+  c.appendChild(op);body.appendChild(c);
+ })
+}
+function qchange(k,x){S[k].qty=Math.max(0,(S[k].qty||0)+x);details();render()}
+function opt(k,i,on){if(on){if(!S[k].opts.includes(i))S[k].opts.push(i);if(S[k].qtys[i]==null)S[k].qtys[i]=1}else S[k].opts=S[k].opts.filter(x=>x!==i);render()}
+function calc(){
+ let lines=[],sub=0;
+ Object.entries(S).forEach(([k,s])=>{
+  let d=D[k],a=0;
+  if(k.startsWith("욕실")){a=d.base*s.qty;s.opts.forEach(i=>a+=d.opts[i][1]*(s.qtys[i]??1))}
+  else if(k==="주방"){a=d.base*s.qty;s.opts.forEach(i=>a+=d.opts[i][1]*(s.qtys[i]??1))}
+  else if(k==="도배"){let i=s.opts.find(x=>x<=2);a=s.qty*(i===2?140000:i===1?120000:80000)}
+  else if(k==="마루"){a=d.base*s.qty;s.opts.forEach(i=>a+=d.opts[i][1]*(s.qtys[i]??1))}
+  else if(k==="샷시"){s.opts.forEach(i=>a+=d.opts[i][1]*s.qty)}
+  else {s.opts.forEach(i=>a+=d.opts[i][1]*(s.qtys[i]??1))}
+  if(a){sub+=a;lines.push([k,a])}
+ });
+ let mg=full?sub*.07:0, disc=(+document.getElementById("discount").value||0)+(document.getElementById("review").checked?100000:0);
+ let taxable=Math.max(0,sub+mg-disc),va=taxable*.10;
+ return {lines,sub,mg,disc,va,total:taxable+va}
+}
+function render(){
+ let c=calc(),box=document.getElementById("summary");box.innerHTML=c.lines.length?c.lines.map(x=>`<div class="sum"><span>${x[0]}</span><b>${won(x[1])}</b></div>`).join(""):"<span class='muted'>공정 선택</span>";
+ document.getElementById("subtotal").textContent=won(c.sub);document.getElementById("mgmtRow").style.display=c.mg?"flex":"none";document.getElementById("mgmt").textContent=won(c.mg);document.getElementById("discountText").textContent=c.disc?"-"+won(c.disc):"0원";document.getElementById("vatAmount").textContent=won(c.va);document.getElementById("grand").textContent=won(c.total)
+}
+function naver(){let a=document.getElementById("address").value.trim()||"공사주소";window.open("https://map.naver.com/p/search/"+encodeURIComponent(a),"_blank")}
+function contract(){
+ let c=calc(),name=document.getElementById("name").value||"고객",addr=(document.getElementById("address").value||"")+" "+(document.getElementById("detailAddress").value||"");
+ let dates=[
+  ["계약금 20%",document.getElementById("contractDate").value],
+  ["1차 중도금 30%",document.getElementById("mid1Date").value],
+  ["2차 중도금 30%",document.getElementById("mid2Date").value],
+  ["잔금 20%",document.getElementById("balanceDate").value]
+ ];
+ let dateRows=dates.map(x=>`<p><b>${x[0]}</b> : ${x[1]||"날짜 미입력"}</p>`).join("");
+ let terms=document.getElementById("specialTerms").value.trim();
+ document.getElementById("ct").innerHTML=`<p><b>고객:</b> ${name} / ${document.getElementById("phone").value||""}</p><p><b>공사주소:</b> ${addr}</p><h3>공사내역</h3>${c.lines.map(x=>`<p>${x[0]} : ${won(x[1])}</p>`).join("")}${c.mg?`<p>현장관리비 7% : ${won(c.mg)}</p>`:""}${c.disc?`<p>할인 : -${won(c.disc)}</p>`:""}<h3>총 계약금액 ${won(c.total)}</h3><h3>공사대금 지급 일정</h3>${dateRows}<p><b>잔금 조건:</b> 공사 완료일로부터 3일 이내 지급</p><hr><h3>기본 특약</h3><p>시공 완료 후 사후관리는 <b>1년</b>으로 합니다. 단, 사용자 과실, 소모품, 정상적인 사용에 따른 마모·변색 및 천재지변 등은 사후관리 대상에서 제외할 수 있습니다.</p>${terms?`<h3>추가 특약사항</h3><p>${terms.replace(/\n/g,"<br>")}</p>`:""}<hr><p>선택한 공사내용과 옵션을 기준으로 계약합니다. 현장 추가공사는 별도 협의합니다.</p>`;
+ document.getElementById("modal").classList.remove("hidden")
+}
+function clearSign(){let x=document.getElementById("sign").getContext("2d");x.clearRect(0,0,700,180)}
+let cv=document.getElementById("sign"),cx=cv.getContext("2d"),draw=false;
+function pp(e){let r=cv.getBoundingClientRect(),p=e.touches?e.touches[0]:e;return{x:(p.clientX-r.left)*cv.width/r.width,y:(p.clientY-r.top)*cv.height/r.height}}
+["mousedown","touchstart"].forEach(v=>cv.addEventListener(v,e=>{draw=true;let p=pp(e);cx.beginPath();cx.moveTo(p.x,p.y);e.preventDefault()}));
+["mousemove","touchmove"].forEach(v=>cv.addEventListener(v,e=>{if(!draw)return;let p=pp(e);cx.lineTo(p.x,p.y);cx.stroke();e.preventDefault()}));["mouseup","mouseleave","touchend"].forEach(v=>cv.addEventListener(v,()=>draw=false));
+
+function saveContractFields(){["contractDate","mid1Date","mid2Date","balanceDate","date","specialTerms"].forEach(id=>{let e=document.getElementById(id);if(e)localStorage.setItem("dm_"+id,e.value)})}
+function loadContractFields(){["contractDate","mid1Date","mid2Date","balanceDate","date","specialTerms"].forEach(id=>{let e=document.getElementById(id),v=localStorage.getItem("dm_"+id);if(e&&v!==null)e.value=v;if(e)e.addEventListener("input",saveContractFields)})}
+init();loadContractFields();render();
+</script><section class="v6-business"><h3>인테리어 업체 정보</h3><p><b>상호:</b> 디엠세라믹</p><p><b>사업자등록번호:</b> 395-33-00056</p><p><b>대표자:</b> 김혜영</p><p><b>사업자 주소:</b> 인천 부평대로 283 우림라이온스밸리 B-B209</p><p><b>업태:</b> 건설업　<b>업종:</b> 내장목공공사</p></section><script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./service-worker.js")}</script></body></html>
